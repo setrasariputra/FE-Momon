@@ -33,24 +33,34 @@
       </div>
     </div>
     <a href="#" class="button-secondary">Lupa Password</a>
-    <input type="submit" value="Login" @click.prevent="onSubmit" class="button-primary" />
+    <!-- <input type="submit" value="Login" @click.prevent="onSubmit" class="button-primary" /> -->
+    <el-button type="primary" @click.prevent="onSubmit" size="large" :loading="loading" round>Login</el-button>
   </form>
   <!-- End Block Form -->
 </template>
 
 <script>
 import axios from "axios";
+import { ElButton } from "element-plus";
+
 export default {
   name: 'LoginForm',
+  components: {
+    ElButton,
+  },
   data() {
     return {
       title: 'Selamat Data',
-      urlLogin: 'http://localhost:8000/api/v1/login',
+      urlLogin: '/api/v1/login',
       form: {
         email: '',
         password: '',
       },
-      active: true
+      active: true,
+      loading: false,
+
+      baseURL: axios.defaults.baseURL,
+      basefrontURL: axios.defaults.baseFrontURL,
     }
   },
   created() {
@@ -59,6 +69,9 @@ export default {
   methods: {
     async onSubmit() {
       try {
+        // set button loading
+        this.loading = true;
+
         // sukses
         const response = await axios({
           method: "post",
@@ -66,6 +79,9 @@ export default {
           data: this.form,
         });
         if(response.data.status == 'success') {
+          // set button stop loading
+          this.loading = false;
+
           const access_token = response.data.access_token;
           const expired_token = response.data.expires_in;
 
@@ -75,6 +91,7 @@ export default {
 
           // redirect dashboard
           console.log("Sukses Login "+access_token);
+          window.location.href = this.basefrontURL + "/dashboard";
         }
       } catch (error) {
         // error
